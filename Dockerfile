@@ -20,6 +20,6 @@ RUN apk add --no-cache --virtual .build-deps \
     go install github.com/shell909090/influx-proxy/service && \
     mv $GOPATH/bin/service /usr/bin/influxdb-proxy && \
     apk del .build-deps && rm -rf $GOPATH && \
-    apk add redis python
+    apk add redis python py-pip && pip install redis
 
 CMD ["/start.sh"]
