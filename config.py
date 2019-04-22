@@ -11,6 +11,7 @@ from __future__ import absolute_import, division,\
 import sys
 import getopt
 import redis
+import json
 
 
 # backends key use for KEYMAPS, NODES, cache file
@@ -105,19 +106,36 @@ def main():
     if '-h' in optdict:
         print(main.__doc__)
         return
-
+    
     client = redis.StrictRedis(
         host=optdict.get('-H', 'localhost'),
         port=int(optdict.get('-p', '6379')),
         db=int(optdict.get('-d', '0')))
-
+    
     cleanups(client, ['default_node', 'b:*', 'm:*', 'n:*'])
+
+    try:
+        cfg=json.load(open('/etc/influxdb-proxy/config.json'))
+    except:
+        cfg={}
+
+    global DEFAULT_NODE, BACKENDS, NODES, KEYMAPS
+    if 'DEFAULT_NODE' in cfg.keys():
+        DEFAULT_NODE=cfg['DEFAULT_NODE']
+
+    if 'BACKENDS' in cfg.keys():
+        BACKENDS=cfg['BACKENDS']
+
+    if 'NODES' in cfg.keys():
+        NODES=cfg['NODES']
+
+    if 'KEYMAPS' in cfg.keys():
+        KEYMAPS=cfg['KEYMAPS']
 
     write_config(client, DEFAULT_NODE, "default_node")
     write_configs(client, BACKENDS, 'b:')
     write_configs(client, NODES, 'n:')
     write_configs(client, KEYMAPS, 'm:')
-
 
 if __name__ == '__main__':
     main()

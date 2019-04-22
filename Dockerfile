@@ -6,6 +6,7 @@ ENV REDIS_PORT=6379
 ENV CONFIG=/etc/influxdb-proxy/config.py
 
 ADD docker/start.sh /start.sh
+ADD docker/config.json /etc/influxdb-proxy/config.json
 
 RUN apk add --no-cache --virtual .build-deps \
     git \
