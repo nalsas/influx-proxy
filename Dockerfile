@@ -15,7 +15,7 @@ RUN apk add --no-cache --virtual .build-deps \
     export GOPATH=/root/go && \
     export PATH=$PATH:$GOPATH/bin && \
     mkdir -p  $GOPATH/src/github.com/shell909090/influx-proxy/ && \
-    cd ~ && git clone https://github.com/nalsas/influx-proxy && cd influx-proxy && git checkout master && mkdir /etc/influxdb-proxy && cp config.py /etc/influxdb-proxy/ && cd .. && \
+    cd ~ && git clone https://github.com/nalsas/influx-proxy && cd influx-proxy && git checkout master && mkdir -p /etc/influxdb-proxy && cp config.py /etc/influxdb-proxy/ && cd .. && \
     cp -r influx-proxy $GOPATH/src/github.com/shell909090/ && \
     go get github.com/shell909090/influx-proxy/service && \
     go install github.com/shell909090/influx-proxy/service && \
