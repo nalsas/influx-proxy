@@ -6,7 +6,7 @@ package backend
 
 var (
 	ForbidCmds  = "(?i:select\\s+\\*|^\\s*delete|^\\s*drop|^\\s*grant|^\\s*revoke|\\(\\)\\$)"
-	SupportCmds = "(?i:where.*time|show.*from)"
+	SupportCmds = "(?i:where.*time|show.*from|show\\s+databases)"
 	//ForbidCmds   = ""
 	//SupportCmds  = ""
 	ExecutorCmds = "(?i:show.*measurements)"
