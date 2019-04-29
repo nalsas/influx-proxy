@@ -136,6 +136,10 @@ func GetMeasurementFromInfluxQL(q string) (m string, err error) {
 		}
 	}
 
+	if strings.Contains(strings.ToLower(q), "create database") {
+		return
+	}
+
 	return "", ErrIllegalQL
 }
 
