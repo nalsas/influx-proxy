@@ -6,13 +6,13 @@ package main
 
 import (
 	"compress/gzip"
+	"fmt"
+	"github.com/shell909090/influx-proxy/backend"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/pprof"
 	"strings"
-
-	"github.com/shell909090/influx-proxy/backend"
 )
 
 type HttpService struct {
@@ -38,6 +38,28 @@ func (hs *HttpService) Register(mux *http.ServeMux) {
 	mux.HandleFunc("/write", hs.HandlerWrite)
 	mux.HandleFunc("/debug/pprof/", pprof.Index)
 	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	mux.HandleFunc("/status", hs.HandleStatus)
+}
+
+func (hs *HttpService) HandleStatus(w http.ResponseWriter, req *http.Request) {
+	defer req.Body.Close()
+	fmt.Println(hs.ic)
+	bas := hs.ic.GetBas()
+	fmt.Println(bas)
+	var ret = "["
+	for i, x := range bas {
+		var active = "0"
+		if x.IsActive() {
+			active = "1"
+		}
+		ret += "{\"id\":" + string(i) + ",\"url\":\"" + x.GetUrl() + "\",\"active\":" + active + "},"
+	}
+	ret = strings.Trim(ret, ",")
+	ret += "]"
+	fmt.Println(ret)
+	w.WriteHeader(200)
+	w.Write([]byte(ret))
+	return
 }
 
 func (hs *HttpService) HandlerReload(w http.ResponseWriter, req *http.Request) {
@@ -104,7 +126,6 @@ func (hs *HttpService) HandlerWrite(w http.ResponseWriter, req *http.Request) {
 	}
 
 	db := req.URL.Query().Get("db")
-
 	if hs.db != "" {
 		if db != hs.db {
 			w.WriteHeader(404)
@@ -132,7 +153,7 @@ func (hs *HttpService) HandlerWrite(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = hs.ic.Write(p)
+	err = hs.ic.Write(p, req)
 	if err == nil {
 		w.WriteHeader(204)
 	}

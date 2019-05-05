@@ -89,7 +89,6 @@ func (bs *Backends) Write(p []byte) (err error) {
 	if !bs.running {
 		return io.ErrClosedPipe
 	}
-
 	bs.ch_write <- p
 	return
 }
@@ -255,4 +254,13 @@ func (bs *Backends) Rewrite() (err error) {
 		return
 	}
 	return
+}
+
+func (bs *Backends) SetContext(ctx Context) (err error) {
+	bs.HttpBackend.LastWriteReq = ctx.req
+	return
+}
+
+func (bs *Backends) getHttpBackEnd() (hbe *HttpBackend) {
+	return bs.HttpBackend
 }

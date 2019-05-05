@@ -39,15 +39,16 @@ func Compress(buf *bytes.Buffer, p []byte) (err error) {
 }
 
 type HttpBackend struct {
-	client    *http.Client
-	transport http.Transport
-	Interval  int
-	URL       string
-	DB        string
-	Zone      string
-	Active    bool
-	running   bool
-	WriteOnly int
+	client       *http.Client
+	transport    http.Transport
+	Interval     int
+	URL          string
+	DB           string
+	Zone         string
+	Active       bool
+	running      bool
+	WriteOnly    int
+	LastWriteReq *http.Request
 }
 
 func NewHttpBackend(cfg *BackendConfig) (hb *HttpBackend) {
@@ -91,6 +92,10 @@ func (hb *HttpBackend) IsWriteOnly() bool {
 
 func (hb *HttpBackend) IsActive() bool {
 	return hb.Active
+}
+
+func (hb *HttpBackend) GetUrl() string {
+	return hb.URL
 }
 
 func (hb *HttpBackend) Ping() (version string, err error) {
@@ -188,7 +193,14 @@ func (hb *HttpBackend) WriteCompressed(p []byte) (err error) {
 func (hb *HttpBackend) WriteStream(stream io.Reader, compressed bool) (err error) {
 	q := url.Values{}
 	q.Set("db", hb.DB)
-
+	if hb.LastWriteReq != nil {
+		for k, v := range hb.LastWriteReq.URL.Query() {
+			//fmt.Println("k:"+k+" v:"+v[0])
+			if k != "db" {
+				q.Set(k, v[0])
+			}
+		}
+	}
 	req, err := http.NewRequest("POST", hb.URL+"/write?"+q.Encode(), stream)
 	if compressed {
 		req.Header.Add("Content-Encoding", "gzip")
