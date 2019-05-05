@@ -8,12 +8,15 @@ import (
 	"bytes"
 	"io"
 	"log"
+	"os"
+	"strings"
 	"sync"
 	"time"
 )
 
 const (
-	WRITE_QUEUE = 16
+	WRITE_QUEUE  = 16
+	DEFAULT_PATH = "./filedata/"
 )
 
 type Backends struct {
@@ -47,7 +50,15 @@ func NewBackends(cfg *BackendConfig, name string) (bs *Backends, err error) {
 		rewriter_running: false,
 		MaxRowLimit:      int32(cfg.MaxRowLimit),
 	}
-	bs.fb, err = NewFileBackend(name)
+
+	path := os.Getenv("FILE_BACKEND_PATH")
+	if len(path) == 0 {
+		path = DEFAULT_PATH
+	}
+	path = strings.TrimRight(path, "/") + "/"
+	os.MkdirAll(path, 0777)
+
+	bs.fb, err = NewFileBackend(path + name)
 	if err != nil {
 		return
 	}

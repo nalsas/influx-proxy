@@ -26,7 +26,6 @@ func NewFileBackend(filename string) (fb *FileBackend, err error) {
 		filename: filename,
 		dataflag: false,
 	}
-
 	fb.producer, err = os.OpenFile(filename+".dat",
 		os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
