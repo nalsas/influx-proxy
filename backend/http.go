@@ -171,6 +171,44 @@ func (hb *HttpBackend) Query(w http.ResponseWriter, req *http.Request) (err erro
 	return
 }
 
+func (hb *HttpBackend) CreateDB(db string) (err error) {
+	q := url.Values{}
+	q.Set("db", hb.DB)
+	q.Set("q", "create database "+db+"")
+	newreq, err := http.NewRequest("POST", hb.URL+"/query?"+q.Encode(), strings.NewReader("")) //"q=create database '"+db+"'"))
+	resp, err := hb.client.Do(newreq)
+	if err != nil {
+		log.Print("http error: ", err)
+		hb.Active = false
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 200 {
+		return
+	}
+	log.Print("write status code: ", resp.StatusCode)
+
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Print("readall error: ", err)
+		return
+	}
+
+	// translate code to error
+	// https://docs.influxdata.com/influxdb/v1.1/tools/api/#write
+	switch resp.StatusCode {
+	case 400:
+		err = ErrBadRequest
+	case 404:
+		err = ErrNotFound
+	default: // mostly tcp connection timeout
+		log.Printf("status: %d", resp.StatusCode)
+		err = ErrUnknown
+	}
+	return
+}
+
 func (hb *HttpBackend) Write(p []byte) (err error) {
 	var buf bytes.Buffer
 	err = Compress(&buf, p)

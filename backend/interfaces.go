@@ -22,6 +22,7 @@ type BackendAPI interface {
 	Ping() (version string, err error)
 	GetZone() (zone string)
 	Write(p []byte) (err error)
+	CreateDB(db string) (err error)
 	Close() (err error)
 	SetContext(ctx Context) (err error)
 }

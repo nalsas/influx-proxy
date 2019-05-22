@@ -84,6 +84,10 @@ func (fb *FileBackend) Write(p []byte) (err error) {
 	return
 }
 
+func (fb *FileBackend) CreateDB() (db string) {
+	return
+}
+
 func (fb *FileBackend) IsData() (dataflag bool) {
 	fb.lock.Lock()
 	defer fb.lock.Unlock()

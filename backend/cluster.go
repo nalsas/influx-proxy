@@ -465,6 +465,25 @@ func (ic *InfluxCluster) Query(w http.ResponseWriter, req *http.Request) (err er
 	return
 }
 
+func (ic *InfluxCluster) CreateDB(db string) (err error) {
+	bs, ok := ic.GetBackends("")
+	if !ok {
+		log.Printf("get backend failed! \n")
+		return
+	}
+
+	// don't block here for a lont time, we just have one worker.
+	for _, b := range bs {
+		err = b.CreateDB(db)
+		if err != nil {
+			log.Printf("cluster create db fail\n")
+			return
+		}
+	}
+
+	return
+}
+
 // Wrong in one row will not stop others.
 // So don't try to return error, just print it.
 func (ic *InfluxCluster) WriteRow(line []byte, req *http.Request) {

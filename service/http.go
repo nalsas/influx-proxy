@@ -103,6 +103,12 @@ func (hs *HttpService) HandlerQuery(w http.ResponseWriter, req *http.Request) {
 	}
 
 	q := strings.TrimSpace(req.FormValue("q"))
+	if strings.Contains(strings.ToLower(q), "create database") {
+		_ = hs.ic.CreateDB(hs.db)
+		w.WriteHeader(200)
+		return
+	}
+
 	err := hs.ic.Query(w, req)
 	if err != nil {
 		log.Printf("query error: %s,the query is %s,the client is %s\n", err, q, req.RemoteAddr)
