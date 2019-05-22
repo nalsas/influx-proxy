@@ -97,7 +97,7 @@ func (hs *HttpService) HandlerQuery(w http.ResponseWriter, req *http.Request) {
 	if hs.db != "" {
 		if db != hs.db {
 			w.WriteHeader(404)
-			w.Write([]byte("database not exist."))
+			w.Write([]byte("database not exist. hs.db:" + hs.db))
 			return
 		}
 	}
@@ -129,7 +129,7 @@ func (hs *HttpService) HandlerWrite(w http.ResponseWriter, req *http.Request) {
 	if hs.db != "" {
 		if db != hs.db {
 			w.WriteHeader(404)
-			w.Write([]byte("database not exist."))
+			w.Write([]byte("database not exist. hs.db:" + hs.db))
 			return
 		}
 	}
